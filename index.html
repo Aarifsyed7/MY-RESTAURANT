@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Restaurant</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: "Poppins", sans-serif;
+    background: #fafafa;
+    color: #333;
+    overflow-x: hidden;
+}
+
+nav {
+    transition: .3s;
+    background: transparent;
+}
+nav.scrolled {
+    background: #111 !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.nav-link {
+    font-weight: 500;
+    font-size: 15px;
+    padding: 12px 18px;
+    transition: .3s;
+}
+.nav-link.active, .nav-link:hover {
+    color: #ffcc00 !important;
+}
+.navbar-brand { letter-spacing: .5px; }
+
+#navbarCart {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+#navbarCart .count {
+    background: #ffcc00;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+#home {
+    height: 100vh;
+    background: url("https://images.unsplash.com/photo-1504674900247-0877df9cc836") center/cover no-repeat;
+    position: relative;
+}
+#home .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+}
+#home .content {
+    position: relative;
+    z-index: 10;
+    margin-top: 16%;
+}
+#home h1 {
+    font-size: 3.8rem;
+    font-weight: 700;
+}
+
+.btn-main {
+    background: #ffcc00;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: bold;
+    border: none;
+    transition: .3s;
+}
+.btn-main:hover {
+    background: #e6b800;
+}
+
+.fade-in { opacity: 0; transform: translateY(30px); transition: 1s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+.counter-box {
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+.counter {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #ffcc00;
+}
+
+.menu-item {
+    background: #fff;
+    padding: 0 0 20px 0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    transition: .3s;
+}
+.menu-item:hover { transform: translateY(-8px); }
+.menu-img {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+}
+.menu-info {
+    padding: 15px 18px;
+}
+.menu-info h5 {
+    font-weight: 600;
+}
+.menu-info p {
+    margin: 0;
+    font-size: 15px;
+}
+
+.add-cart {
+    margin-top: 10px;
+    display: inline-block;
+    border-radius: 30px;
+    padding: 8px 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#whatsappBtn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: #25d366;
+    padding: 15px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 26px;
+    cursor: pointer;
+    z-index: 999;
+}
+
+#floatCart {
+    position: fixed;
+    bottom: 25px;
+    right: 95px;
+    background: #ffcc00;
+    padding: 12px 14px;
+    border-radius: 50%;
+    font-size: 20px;
+    color: #111;
+    cursor: pointer;
+    z-index: 999;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+#floatCart .count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #111;
+    color: #fff;
+    padding: 4px 7px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+#topBtn {
+    position: fixed;
+    bottom: 25px;
+    right: 165px;
+    background: #000;
+    padding: 13px 15px;
+    border-radius: 50%;
+    font-size: 22px;
+    color: #fff;
+    opacity: 0;
+    transition: .3s;
+    cursor: pointer;
+}
+
+#cartSidebar {
+    position: fixed;
+    right: -420px;
+    top: 0;
+    height: 100vh;
+    width: 420px;
+    background: #fff;
+    box-shadow: -12px 0 30px rgba(0,0,0,0.2);
+    transition: right 0.35s ease;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+}
+#cartSidebar.open { right: 0; }
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px;
+    border-bottom: 1px solid #eee;
+}
+#cartItems { padding: 18px; flex: 1; overflow-y: auto; }
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 12px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed #eee;
+}
+.cart-item .meta { flex: 1; }
+.cart-item .controls { display: flex; align-items: center; gap: 8px; }
+.cart-footer {
+    padding: 18px;
+    border-top: 1px solid #eee;
+}
+
+footer {
+    background: #111;
+    padding: 40px 0;
+    color: #fff;
+}
+
+@media (max-width: 767px) {
+    #cartSidebar { width: 100%; }
+    #topBtn { right: 120px; }
+    #floatCart { right: 75px; }
+}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top px-4">
+    <a class="navbar-brand fw-bold fs-3" href="#">My Restaurant</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="menu">
+        <ul class="navbar-nav ms-auto text-center align-items-center">
+            <li><a class="nav-link active" href="#home">Home</a></li>
+            <li><a class="nav-link" href="#about">About</a></li>
+            <li><a class="nav-link" href="#menuList">Menu</a></li>
+            <li><a class="nav-link" href="#reserve">Reserve</a></li>
+            <li><a class="nav-link" href="#contact">Contact</a></li>
+            <li class="ms-3">
+                
+                <div id="navbarCart" onclick="openCartSidebar()">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#fff" d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14.26L6.2 6H19v2H8.42l.74 5.14c.12.83-.54 1.6-1.3 1.6H7.16z"/></svg>
+                    <span class="count" id="navCartCount">0</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+
+<header id="home" class="d-flex align-items-center text-white">
+    <div class="overlay"></div>
+    <div class="container text-center content fade-in">
+        <h1>Luxury Dining, Refined Elegance</h1>
+        <p class="mt-3 fs-5">Experience world-class flavors in a premium atmosphere.</p>
+        <a href="#menuList" class="btn-main mt-3">Explore Menu</a>
+    </div>
+</header>
+
+
+<section id="about" class="py-5">
+    <div class="container fade-in">
+        <h2 class="text-center fw-bold mb-4">About Us</h2>
+        <p class="text-center w-75 mx-auto">
+            At My Restaurant, we combine gourmet artistry, fresh ingredients, and luxurious ambiance to craft unforgettable dining experiences curated by our expert chefs.
+        </p>
+    </div>
+</section>
+
+
+<section class="py-5 bg-light">
+    <div class="container fade-in">
+        <div class="row text-center">
+            <div class="col-lg-4 mb-4">
+                <div class="counter-box">
+                    <div class="counter" data-target="3500">0</div>
+                    <p class="mt-2">Happy Customers</p>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="counter-box">
+                    <div class="counter" data-target="75">0</div>
+                    <p class="mt-2">Premium Dishes</p>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="counter-box">
+                    <div class="counter" data-target="18">0</div>
+                    <p class="mt-2">Awards Won</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section id="menuList" class="py-5">
+    <div class="container fade-in">
+        <h2 class="text-center fw-bold mb-4">Our Menu</h2>
+
+        <div class="text-center mb-4">
+            <button class="btn btn-dark me-2 filter-btn active" data-category="all">All</button>
+            <button class="btn btn-outline-dark me-2 filter-btn" data-category="starter">Starters</button>
+            <button class="btn btn-outline-dark me-2 filter-btn" data-category="main">Main Course</button>
+            <button class="btn btn-outline-dark filter-btn" data-category="dessert">Desserts</button>
+        </div>
+
+        <div class="row" id="menuContainer">
+
+            
+            <div class="col-lg-4 mb-4 menu-item starter">
+                <img src="paneer tikka 2.jpg" class="menu-img" alt="Paneer Tikka">
+                <div class="menu-info">
+                    <h5>Paneer Tikka</h5>
+                    <p>₹220</p>
+                    <button class="btn-main add-cart" onclick="addToCart('Paneer Tikka',220,'C:\\Users\\Akbar\\OneDrive\\Desktop\\sourxe\\paneer tikka 2.jpg')">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4 menu-item starter">
+                <img src="Veg Spring Rolls 1 .jpg" class="menu-img" alt="Veg Spring Rolls">
+                <div class="menu-info">
+                    <h5>Veg Spring Rolls</h5>
+                    <p>₹180</p>
+                    <button class="btn-main add-cart" onclick="addToCart('Veg Spring Rolls',180,'C:\\Users\\Akbar\\OneDrive\\Desktop\\sourxe\\Veg Spring Rolls 1 .jpg')">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4 menu-item starter">
+                <img src="Chicken Tandoori 1.jpg" class="menu-img" alt="Chicken Tandoori">
+                <div class="menu-info">
+                    <h5>Chicken Tandoori</h5>
+                    <p>₹320</p>
+                    <button class="btn-main add-cart" onclick="addToCart('Chicken Tandoori',320,'C:\\Users\\Akbar\\OneDrive\\Desktop\\sourxe\\Chicken Tandoori 1.jpg')">Add to Cart</button>
+                </div>
+            </div>
+
+            
+            <div class="col-lg-4 mb-4 menu-item main">
+                <img src="meals.jpg" class="menu-img" alt="Veg Meals">
+                <div class="menu-info">
+                    <h5>Veg Meals</h5>
+                    <p>₹380</p>
+                    <button class="btn-main add-cart" onclick="addToCart('Veg Meals',380,'C:\\Users\\Akbar\\OneDrive\\Desktop\\sourxe\\meals.jpg')">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4 menu-item main">
+                <img src="Chicken Biryani.jpg" class="menu-img" alt="Chicken Biryani">
+                <div class="menu-info">
+                    <h5>Chicken Biryani</h5>
+                    <p>₹389</p>
+                    <button class="btn-main add-cart" onclick="addToCart('Chicken Biryani',420,'C:\\Users\\Akbar\\OneDrive\\Desktop\\sourxe\\Chicken Biryani.jpg')">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4 menu-item main">
+                <img src="mutton biryani.jpg" class="menu-img" alt="Mutton Biryani">
+                <div class="menu-info">
+                    <h5>Mutton Biryani</h5>
+                    <p>₹479</p>
+                    <button class="btn-main add-cart" onclick="addToCart('Mutton Biryani',300,'C:\\Users\\Akbar\\OneDrive\\Desktop\\sourxe\\mutton biryani.jpg')">Add to Cart</button>
+                </div>
+            </div>
+
+            
+            <div class="col-lg-4 mb-4 menu-item dessert">
+                <img src="Chocolate Lava Cake.jpg" class="menu-img" alt="Chocolate Lava Cake">
+                <div class="menu-info">
+                    <h5>Chocolate Lava Cake</h5>
+                    <p>₹150</p>
+                    <button class="btn-main add-cart" onclick="addToCart('Chocolate Lava Cake',150,'C:\\Users\\Akbar\\OneDrive\\Desktop\\sourxe\\Chocolate Lava Cake.jpg')">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4 menu-item dessert">
+                <img src="Rasmalai.jpg" class="menu-img" alt="Rasmalai">
+                <div class="menu-info">
+                    <h5>Rasmalai</h5>
+                    <p>₹120</p>
+                    <button class="btn-main add-cart" onclick="addToCart('Rasmalai',120,'C:\\Users\\Akbar\\OneDrive\\Desktop\\sourxe\\Rasmalai.jpg')">Add to Cart</button>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4 menu-item dessert">
+                <img src="Gulab jamun.jpg" class="menu-img" alt="Gulab Jamun">
+                <div class="menu-info">
+                    <h5>Gulab jamun</h5>
+                    <p>₹180</p>
+                    <button class="btn-main add-cart" onclick="addToCart('Gulab jamun',180,'C:\\Users\\Akbar\\OneDrive\\Desktop\\sourxe\\Gulab jamun.jpg')">Add to Cart</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<section id="reserve" class="py-5 bg-light fade-in">
+    <div class="container">
+        <h2 class="text-center fw-bold mb-4">Reserve a Table</h2>
+
+        <form id="reserveForm" class="p-4 bg-white rounded shadow">
+            <div class="row">
+                <div class="col-lg-6 mb-3"><input required class="form-control" name="name" placeholder="Your Name"></div>
+                <div class="col-lg-6 mb-3"><input required type="email" class="form-control" name="email" placeholder="Email"></div>
+                <div class="col-lg-6 mb-3"><input required type="number" class="form-control" name="guests" placeholder="Guests"></div>
+                <div class="col-lg-6 mb-3"><input required type="date" class="form-control" name="date"></div>
+            </div>
+            <button class="btn-main w-100">Submit</button>
+        </form>
+    </div>
+</section>
+
+
+<section id="contact" class="py-5 fade-in">
+    <div class="container text-center">
+        <h2 class="fw-bold">Contact Us</h2>
+        <p>Email: MyRestaurant@gmail.com | Phone: +91 7673925657</p>
+    </div>
+</section>
+
+
+<footer class="text-center">
+    <p>&copy; 2025 My Restaurant. All Rights Reserved.</p>
+</footer>
+
+
+<div id="whatsappBtn" title="Chat on WhatsApp">💬</div>
+<div id="topBtn" title="Back to top">↑</div>
+<div id="floatCart" title="Open Cart" onclick="openCartSidebar()">
+    🛒<div class="count" id="floatCartCount">0</div>
+</div>
+
+
+<div id="cartSidebar" aria-hidden="true">
+    <div class="cart-header">
+        <h4>Your Cart</h4>
+        <div>
+            <button class="btn btn-sm btn-outline-secondary me-2" onclick="clearCart()">Clear</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="closeCartSidebar()">Close ✖</button>
+        </div>
+    </div>
+    <div id="cartItems"></div>
+    <div class="cart-footer">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Subtotal:</h5>
+            <h5>₹<span id="subtotal">0</span></h5>
+        </div>
+        <button class="btn-main w-100" id="checkoutBtn">Checkout</button>
+    </div>
+</div>
+
+
+<div class="toast-container position-fixed bottom-0 end-0 p-4">
+    <div id="liveToast" class="toast">
+        <div class="toast-body bg-success text-white fw-bold">
+            Reservation Submitted Successfully!
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+window.addEventListener("scroll", () => {
+    document.querySelector("nav").classList.toggle("scrolled", window.scrollY > 50);
+});
+
+
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); });
+});
+document.querySelectorAll(".fade-in").forEach(x => observer.observe(x));
+
+
+let started = false;
+window.addEventListener("scroll", () => {
+    const sec = document.querySelector(".counter-box");
+    if (sec && window.scrollY > sec.offsetTop - 500 && !started) {
+        started = true;
+        document.querySelectorAll(".counter").forEach(c => {
+            let target = +c.dataset.target, count = 0, step = target/100;
+            function update() {
+                if (count < target) {
+                    count += step; c.innerText = Math.floor(count);
+                    requestAnimationFrame(update);
+                } else c.innerText = target;
+            }
+            update();
+        });
+    }
+});
+
+
+document.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelector(".filter-btn.active").classList.remove("active");
+        btn.classList.add("active");
+        let cat = btn.dataset.category;
+
+        document.querySelectorAll(".menu-item").forEach(item => {
+            item.style.display = (cat === "all" || item.classList.contains(cat)) ? "block" : "none";
+        });
+    });
+});
+
+
+document.getElementById("whatsappBtn").onclick = () => {
+    window.open("https://wa.me/919999999999?text=Hi! I want to book a table.", "_blank");
+};
+
+
+window.addEventListener("scroll", () => {
+    document.getElementById("topBtn").style.opacity = window.scrollY > 200 ? 1 : 0;
+});
+document.getElementById("topBtn").onclick = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+
+const toast = new bootstrap.Toast(document.getElementById("liveToast"));
+document.getElementById("reserveForm").addEventListener("submit", e => {
+    e.preventDefault();
+    toast.show();
+    e.target.reset();
+});
+
+
+
+const STORAGE_KEY = "myrestaurant_cart_v1";
+let cart = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+function formatRupee(n) { return Number(n).toFixed(0); } 
+
+function saveCart() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    updateCartUI();
+}
+
+function updateCartUI() {
+   
+    const totalItems = cart.reduce((s, i) => s + i.qty, 0);
+    document.getElementById("navCartCount").innerText = totalItems;
+    document.getElementById("floatCartCount").innerText = totalItems;
+
+    
+    const container = document.getElementById("cartItems");
+    container.innerHTML = "";
+    let subtotal = 0;
+    if (cart.length === 0) {
+        container.innerHTML = '<p class="p-3 text-muted">Your cart is empty.</p>';
+    } else {
+        cart.forEach((it, idx) => {
+            subtotal += it.price * it.qty;
+            container.innerHTML += `
+                <div class="cart-item">
+                    <div class="meta">
+                        <strong>${escapeHtml(it.name)}</strong><br>
+                        <small>₹${formatRupee(it.price)}</small>
+                    </div>
+                    <div class="controls">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="changeQty(${idx}, -1)">−</button>
+                        <div>${it.qty}</div>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="changeQty(${idx}, 1)">+</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="removeItem(${idx})">Remove</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    document.getElementById("subtotal").innerText = formatRupee(subtotal);
+}
+
+
+function addToCart(name, price, img) {
+    
+    const existing = cart.find(i => i.name === name);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({ name, price: Number(price), qty: 1, img: img || "" });
+    }
+    saveCart();
+    
+    flashToast('Added to cart: ' + name);
+}
+
+
+function changeQty(index, delta) {
+    if (!cart[index]) return;
+    cart[index].qty += delta;
+    if (cart[index].qty <= 0) cart.splice(index, 1);
+    saveCart();
+}
+
+
+function removeItem(index) {
+    if (!cart[index]) return;
+    cart.splice(index, 1);
+    saveCart();
+}
+
+
+function clearCart() {
+    if (!confirm("Clear the cart?")) return;
+    cart = [];
+    saveCart();
+}
+
+
+function openCartSidebar() {
+    document.getElementById("cartSidebar").classList.add("open");
+    document.getElementById("cartSidebar").setAttribute("aria-hidden", "false");
+    updateCartUI();
+}
+function closeCartSidebar() {
+    document.getElementById("cartSidebar").classList.remove("open");
+    document.getElementById("cartSidebar").setAttribute("aria-hidden", "true");
+}
+
+
+document.getElementById("checkoutBtn").addEventListener("click", () => {
+    if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+    }
+    
+    alert("Thank you! Your order has been placed. (Demo)");
+    cart = [];
+    saveCart();
+    closeCartSidebar();
+});
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"'`=\/]/g, function(s){ return ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'
+  })[s]; });
+}
+
+
+function flashToast(msg) {
+    const temp = document.createElement('div');
+    temp.style.position = 'fixed';
+    temp.style.right = '20px';
+    temp.style.bottom = '140px';
+    temp.style.background = '#111';
+    temp.style.color = '#fff';
+    temp.style.padding = '10px 14px';
+    temp.style.borderRadius = '8px';
+    temp.style.zIndex = 3000;
+    temp.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)';
+    temp.innerText = msg;
+    document.body.appendChild(temp);
+    setTimeout(() => { temp.style.opacity = '0'; temp.style.transition = '0.4s'; }, 1400);
+    setTimeout(() => temp.remove(), 2000);
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateCartUI();
+});
+
+document.addEventListener("click", (e) => {
+    const sidebar = document.getElementById("cartSidebar");
+    if (!sidebar.classList.contains("open")) return;
+    if (e.target.closest("#cartSidebar") || e.target.closest("#navbarCart") || e.target.closest("#floatCart")) return;
+    closeCartSidebar();
+});
+</script>
+
+</body>
+</html>
